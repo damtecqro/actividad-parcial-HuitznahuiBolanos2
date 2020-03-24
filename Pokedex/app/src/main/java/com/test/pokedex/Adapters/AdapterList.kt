@@ -1,6 +1,7 @@
 package com.test.pokedex.Adapters
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import com.bumptech.glide.Glide
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.koushikdutta.ion.Ion
+import com.test.pokedex.Activities.ItemDetail
 import com.test.pokedex.R
 
 class AdapterList :RecyclerView.Adapter<AdapterList.ViewHolder>() {
@@ -42,12 +44,20 @@ class AdapterList :RecyclerView.Adapter<AdapterList.ViewHolder>() {
 
     }
 
-    class ViewHolder(view:View):RecyclerView.ViewHolder(view){
+    class ViewHolder(view:View):RecyclerView.ViewHolder(view), View.OnClickListener {
         private var imagePokemon: ImageView = view.findViewById(R.id.pokemon_image)
         private var namePokemon: TextView   = view.findViewById(R.id.pokemon_name)
+        private lateinit var pokemon_id: String;
+        private lateinit var  context: Context;
+
+        init {
+            view.setOnClickListener(this)
+        }
 
         fun bind(item:JsonObject,context: Context){
+            this.context = context;
             namePokemon.setText(item.get("name").asString)
+            this.pokemon_id = item.get("url").asString
 
             Ion.with(context)
                 .load(item.get("url").asString)
@@ -77,6 +87,19 @@ class AdapterList :RecyclerView.Adapter<AdapterList.ViewHolder>() {
                     }
                 }
 
+        }
+
+        override fun onClick(v: View?) {
+//            Log.i("Presionado","Muy presionado")
+            var intent: Intent = Intent(this.context,
+                ItemDetail::class.java)
+            intent.setFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        or Intent.FLAG_ACTIVITY_NEW_TASK
+                        or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            intent.putExtra("pokemon_id",this.pokemon_id)
+
+            this.context.startActivity(intent)
         }
 
     }
